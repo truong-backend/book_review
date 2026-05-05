@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: bookreview_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bookreview
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: bookreview_api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/bookreview
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      JWT_SECRET: bookreview-secret-key-2024-very-long-and-secure
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      PORT: 8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
