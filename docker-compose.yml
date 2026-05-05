@@ -5,10 +5,8 @@ services:
     image: postgres:15-alpine
     container_name: bookreview_db
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: bookreview
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -25,13 +23,8 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-    environment:
-      DATABASE_URL: jdbc:postgresql://postgres:5432/bookreview
-      DB_USERNAME: postgres
-      DB_PASSWORD: password
-      JWT_SECRET: bookreview-secret-key-2024-very-long-and-secure
-      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
-      PORT: 8080
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
